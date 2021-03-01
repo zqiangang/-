@@ -29,9 +29,9 @@ public:
 	using INDEX_TYPE = typename MANAGE::INDEX_TYPE;
 	using NODE_TYPE = SBTreeNode<INDEX_TYPE>;
 	using UNIQUE_NODE_PTR = std::unique_ptr<NODE_TYPE>;
-	using PAIR_INDEX_PATHS_TYPE = std::pair<std::size_t, std::unique_ptr<INDEX_TYPE[], std::default_delete<INDEX_TYPE[]>>>;		// Â·¾¶Ë÷ÒıºÍÂ·¾¶½ÚµãµÄÀàĞÍ
-	using PAIR_UNIQUE_INDEX_PATH_TYPE = std::pair<std::size_t,std::unique_ptr<PAIR_INDEX_PATHS_TYPE[], std::default_delete<PAIR_INDEX_PATHS_TYPE[]>>>;		//count ,Ë÷ÒıÂ·¾¶Êı×éÀàĞÍ
-	using FREQ_TREE_TYPE = FrequentTree<MANAGE>;			// Æµ·±Ê÷ÀàĞÍ
+	using PAIR_INDEX_PATHS_TYPE = std::pair<std::size_t, std::unique_ptr<INDEX_TYPE[], std::default_delete<INDEX_TYPE[]>>>;		// è·¯å¾„ç´¢å¼•å’Œè·¯å¾„èŠ‚ç‚¹çš„ç±»å‹
+	using PAIR_UNIQUE_INDEX_PATH_TYPE = std::pair<std::size_t,std::unique_ptr<PAIR_INDEX_PATHS_TYPE[], std::default_delete<PAIR_INDEX_PATHS_TYPE[]>>>;		//count ,ç´¢å¼•è·¯å¾„æ•°ç»„ç±»å‹
+	using FREQ_TREE_TYPE = FrequentTree<MANAGE>;			// é¢‘ç¹æ ‘ç±»å‹
 	using UNIQUE_FREQ_TREE_PTR = std::unique_ptr<FREQ_TREE_TYPE[], std::default_delete<FREQ_TREE_TYPE[]>>;
 	using PAIR_COUNT_FREQ_LIST_TYPE = std::pair<std::size_t, UNIQUE_FREQ_TREE_PTR>;
 public:
@@ -39,7 +39,7 @@ public:
 		:work_level(1), root(new NODE_TYPE())
 	{}
 
-	// ´«ÈëËùÓĞÊÂ¼şË÷Òı
+	// ä¼ å…¥æ‰€æœ‰äº‹ä»¶ç´¢å¼•
 	StructuralBTree(INDEX_TYPE const * index_list, std::size_t count)
 		:work_level(1), root(new NODE_TYPE())
 	{
@@ -81,41 +81,41 @@ public:
 		if (current_level == work_level)
 			return false;
 
-		// Ïò×ó²é¿´
+		// å‘å·¦æŸ¥çœ‹
 		if (Push(root->left.get(), idx, false, current_level + 1))
 			return true;
 
-		// ÏòÓÒ²é¿´ 
+		// å‘å³æŸ¥çœ‹ 
 		return Push(root->right.get(), idx, stat, current_level + 1);
 	}
 
-	// ´«ÈëËùÓĞµÄÆµ·±×ÓÊ÷
+	// ä¼ å…¥æ‰€æœ‰çš„é¢‘ç¹å­æ ‘
 	//void Distance
 	PAIR_COUNT_FREQ_LIST_TYPE cut(std::size_t distance, PAIR_COUNT_FREQ_LIST_TYPE const & pair_freq_list)
 	{
-		// Ê×ÏÈÇå¿Õ
+		// é¦–å…ˆæ¸…ç©º
 		pair_freq_list.second[0].ClearUniquePool();
-		// È»ºó¶ÔËùÓĞµÄÆµ·±×ÓÊ÷µ÷ÓÃ unique_pool »ñÈ¡ËùÓĞ¿ÉÄÜµÄË÷Òı
+		// ç„¶åå¯¹æ‰€æœ‰çš„é¢‘ç¹å­æ ‘è°ƒç”¨ unique_pool è·å–æ‰€æœ‰å¯èƒ½çš„ç´¢å¼•
 		for (int i = 0; i < pair_freq_list.first; ++i)
 		{
 			pair_freq_list.second[i].UniquePool();
 		}
-		// ´´½¨Ë÷ÒıÂ·¾¶±í
-		// ´æ´¢ËùÓĞÆµ·±×ÓÊ÷ÖĞ³öÏÖµÄµ¥¶ÀË÷Òı¸öÊı
-		paths.first = pair_freq_list.second[0].idx_pool_count;				// ³õÊ¼»¯ÊıÁ¿
+		// åˆ›å»ºç´¢å¼•è·¯å¾„è¡¨
+		// å­˜å‚¨æ‰€æœ‰é¢‘ç¹å­æ ‘ä¸­å‡ºç°çš„å•ç‹¬ç´¢å¼•ä¸ªæ•°
+		paths.first = pair_freq_list.second[0].idx_pool_count;				// åˆå§‹åŒ–æ•°é‡
 		paths.second.reset(new PAIR_INDEX_PATHS_TYPE[paths.first]);
-		// Âú¶ş²æÊ÷Éî¶È
+		// æ»¡äºŒå‰æ ‘æ·±åº¦
 		int bt_depth = static_cast<int>(log2f(InstanceManage<MANAGE>()->GetEventTypeCount()));
-		bt_depth += 1;														// ¶à³öÒ»¸ö index Î»ÖÃ
-		// ·ÖÅä´óĞ¡ 
+		bt_depth += 1;														// å¤šå‡ºä¸€ä¸ª index ä½ç½®
+		// åˆ†é…å¤§å° 
 		for (int i = 0; i < paths.first; ++i)
 		{
 			paths.second[i].first = 1;
 			paths.second[i].second.reset(new INDEX_TYPE[bt_depth]);
-			paths.second[i].second[0] = pair_freq_list.second[0].unique_idx_pool[i];			// Ê×¸öÎ»ÖÃ´æ·ÅË÷Òı£¬ºóÈ¥Î»ÖÃ´æ·ÅÂ·¾¶
+			paths.second[i].second[0] = pair_freq_list.second[0].unique_idx_pool[i];			// é¦–ä¸ªä½ç½®å­˜æ”¾ç´¢å¼•ï¼Œåå»ä½ç½®å­˜æ”¾è·¯å¾„
 		}
 
-		//// ÉêÇëÂ·¾¶¿Õ¼ä,Â·¾¶¿Õ¼äµÄÊÕ¸öÔªËØ´æ´¢¶ÔÓ¦µÄË÷Òı
+		//// ç”³è¯·è·¯å¾„ç©ºé—´,è·¯å¾„ç©ºé—´çš„æ”¶ä¸ªå…ƒç´ å­˜å‚¨å¯¹åº”çš„ç´¢å¼•
 		for (int i = 0; i < paths.first; ++i) 
 		{
 			PathResearch(root.get(), paths.second[i].second[0], i);
@@ -135,37 +135,37 @@ public:
 
 
 
-		// ±»²Ã¼õµÄÖ¦Ò¶
+		// è¢«è£å‡çš„æå¶
 		std::unique_ptr<INDEX_TYPE[],std::default_delete<INDEX_TYPE[]>> cuted(new INDEX_TYPE[pair_freq_list.second[0].idx_pool_count]);
 		std::size_t cuted_count = 0;
 
-		//²Ã¼ôÆµ·±×ÓÊ÷
+		//è£å‰ªé¢‘ç¹å­æ ‘
 		std::vector<FREQ_TREE_TYPE*> tmpFreq;
 		for (int i = 0; i < pair_freq_list.first; ++i)
 		{
-			if (pair_freq_list.second[i].GetLevel() == 1)					// µ¥¿Ã×ÓÊ÷ÎŞ·¨²Ã¼ô
+			if (pair_freq_list.second[i].GetLevel() == 1)					// å•æ£µå­æ ‘æ— æ³•è£å‰ª
 				continue;
-			// Ê×ÏÈÇå¿Õ unique pool
+			// é¦–å…ˆæ¸…ç©º unique pool
 			pair_freq_list.second[i].ClearUniquePool();
-			// °Ñµ±Ç°Æµ·±×ÓÊ÷µÄËùÓĞ×Ó¼¶×ÓÊ÷·ÅÖÃµ½ unique pool
+			// æŠŠå½“å‰é¢‘ç¹å­æ ‘çš„æ‰€æœ‰å­çº§å­æ ‘æ”¾ç½®åˆ° unique pool
 			pair_freq_list.second[i].UniquePool();
 
-			// ÇóËùÓĞµÄ 2 2 ×éºÏ
+			// æ±‚æ‰€æœ‰çš„ 2 2 ç»„åˆ
 			auto tmp_k2 = GroupSplit<MANAGE, PAIR_COUNT_FREQ_LIST_TYPE, INDEX_TYPE>(pair_freq_list.second[i].unique_idx_pool.get(), pair_freq_list.second[i].idx_pool_count, 2);
 			
-			// ¼ì²éËùÓĞµÄ k2
+			// æ£€æŸ¥æ‰€æœ‰çš„ k2
 			for (int j = 0; j < tmp_k2.first; ++j)
 			{
 				auto index1 = tmp_k2.second[j].Get(0);
 				auto index2 = tmp_k2.second[j].Get(1);
-				// ²éÕÒ¶ÔÓ¦µÄÂ·¾¶Ë÷Òı
+				// æŸ¥æ‰¾å¯¹åº”çš„è·¯å¾„ç´¢å¼•
 				bool stat = false;
 				for (int k = 0; k < paths.first; ++k)
 				{
 					if (paths.second[k].second[0] == index1)
 					{
 						index1 = k;
-						if (stat)					// ÒÑ¾­Îª true Ö±½Ó·µ»Ø
+						if (stat)					// å·²ç»ä¸º true ç›´æ¥è¿”å›
 							break;
 						else
 							stat = true;
@@ -173,7 +173,7 @@ public:
 					}
 					if (paths.second[k].second[0] == index2)
 					{
-						index2 = k;				// ÒÑ¾­Îª true Ö±½Ó·µ»Ø
+						index2 = k;				// å·²ç»ä¸º true ç›´æ¥è¿”å›
 						if (stat)
 							break;
 						else
@@ -181,27 +181,27 @@ public:
 					}
 				}
 				// 
-				stat = false;       // ¸´ÓÃÓÃÓÚ·ÀÖ¹Ö´ĞĞÁ÷´©ĞĞ
-				// ±È¶ÔÂ·¾¶
+				stat = false;       // å¤ç”¨ç”¨äºé˜²æ­¢æ‰§è¡Œæµç©¿è¡Œ
+				// æ¯”å¯¹è·¯å¾„
 				std::size_t path_distance = 0;
 				std::size_t max_path_distance = paths.second[index1].first > paths.second[index2].first ? paths.second[index1].first : paths.second[index2].first;
 				std::size_t min_path_distance = paths.second[index1].first > paths.second[index2].first ? paths.second[index2].first : paths.second[index1].first;
 
-					// ´óÂ·¾¶ÍêÈ«°üº¬Ğ¡Â·¾¶ 
-				if (paths.second[index1].second[min_path_distance - 1] == paths.second[index2].second[min_path_distance - 1] && !stat)		// ½Ï¶ÌÂ·¾¶µÄ×îºóÒ»¸öÂ·¾¶ºÍ³¤Â·¾¶µÄÂ·¾¶½Úµã¸´ºÏ
-				{	// Â·¾¶ÖØºÏ³¤Â·¾¶ºÍ¶ÎÂ·¾¶µÄ²îÖµ - 1 ÎªÂ·¾¶¾àÀë
+					// å¤§è·¯å¾„å®Œå…¨åŒ…å«å°è·¯å¾„ 
+				if (paths.second[index1].second[min_path_distance - 1] == paths.second[index2].second[min_path_distance - 1] && !stat)		// è¾ƒçŸ­è·¯å¾„çš„æœ€åä¸€ä¸ªè·¯å¾„å’Œé•¿è·¯å¾„çš„è·¯å¾„èŠ‚ç‚¹å¤åˆ
+				{	// è·¯å¾„é‡åˆé•¿è·¯å¾„å’Œæ®µè·¯å¾„çš„å·®å€¼ - 1 ä¸ºè·¯å¾„è·ç¦»
 					path_distance = max_path_distance - min_path_distance - 1;
 					stat = true;
 				}
 
-				// Á½¸öÂ·¾¶ÍêÈ«ÎŞ¹Ø
+				// ä¸¤ä¸ªè·¯å¾„å®Œå…¨æ— å…³
 				if (paths.second[index1].second[1] == paths.second[index2].second[1] && paths.second[index1].second[2] != paths.second[index2].second[2] && !stat)
 				{
-					path_distance = paths.second[index1].first + paths.second[index2].first - 6;      //²»¼ÆËã³õÊ¼½Úµã¾àÀë
+					path_distance = paths.second[index1].first + paths.second[index2].first - 6;      //ä¸è®¡ç®—åˆå§‹èŠ‚ç‚¹è·ç¦»
 					stat = true;
 				}
 
-				// ´óÂ·¾¶²¿·Ö°üº¬Ğ¡Â·¾¶
+				// å¤§è·¯å¾„éƒ¨åˆ†åŒ…å«å°è·¯å¾„
 				if (!stat)
 				{
 					for (int z = 1; z < min_path_distance; ++z)
@@ -213,7 +213,7 @@ public:
 					}
 				}
 
-				// °Ñ´óÓÚÖ¸¶¨×î´ó¾àÀëµÄ×ÓÊ÷Ìí¼Óµ½ cuted Êı×é
+				// æŠŠå¤§äºæŒ‡å®šæœ€å¤§è·ç¦»çš„å­æ ‘æ·»åŠ åˆ° cuted æ•°ç»„
 				if (path_distance > distance)
 				{
 					bool has_index1 = false, has_index2 = false;
@@ -235,32 +235,31 @@ public:
 							break;
 					}
 
-					if (!has_index1)					// Èç¹û cuted ÖĞ²»´æÔÚ index1 Ôò°Ñ index1 ·ÅÈëÆäÖĞ
+					if (!has_index1)					// å¦‚æœ cuted ä¸­ä¸å­˜åœ¨ index1 åˆ™æŠŠ index1 æ”¾å…¥å…¶ä¸­
 					{
 						cuted[cuted_count] = index1;
 						++cuted_count;
 					}
 
-					if (!has_index2)					// Èç¹û cuted ÖĞ²»´æÔÚ index2 Ôò°Ñ index2 ·ÅÈëÆäÖĞ
+					if (!has_index2)					// å¦‚æœ cuted ä¸­ä¸å­˜åœ¨ index2 åˆ™æŠŠ index2 æ”¾å…¥å…¶ä¸­
 					{
 						cuted[cuted_count] = index2;
 						++cuted_count;
 					}
 				}
 			}
-			// ¸ù¾İ cuted Êı×é ºÍ unique_idx_pool ±È¶Ô,ËùÓĞ²»ÔÚ cutted µÄ×Ó½ÚµãÖØĞÂ¹¹ÔìÒ»¿ÅÆµ·±×ÓÊ÷¼¯
-			// Èç¹û ½öÓĞÒ»¸öÔªËØ Ôò²»½øĞĞÆµ·±×ÓÊ÷¼¯µÄ¹¹Ôì
+			// æ ¹æ® cuted æ•°ç»„ å’Œ unique_idx_pool æ¯”å¯¹,æ‰€æœ‰ä¸åœ¨ cutted çš„å­èŠ‚ç‚¹é‡æ–°æ„é€ ä¸€é¢—é¢‘ç¹å­æ ‘é›†
+			// å¦‚æœ ä»…æœ‰ä¸€ä¸ªå…ƒç´  åˆ™ä¸è¿›è¡Œé¢‘ç¹å­æ ‘é›†çš„æ„é€ 
 			if (pair_freq_list.second[0].idx_pool_count - cuted_count <= 1)
 			{
 				cuted_count = 0;
 				continue;
 			}
-
 			else
 			{
-				// ´´½¨Ò»¿ÃÆµ·±Ê÷,Ê÷µÄ level Îª idx_pool_count ºÍ  cuted_count µÄ²îÖµ
+				// åˆ›å»ºä¸€æ£µé¢‘ç¹æ ‘,æ ‘çš„ level ä¸º idx_pool_count å’Œ  cuted_count çš„å·®å€¼
 				tmpFreq.push_back(new FrequentTree<MANAGE>(pair_freq_list.second[0].idx_pool_count - cuted_count));
-				// ¼ì²éºÍ×·¼Ó
+				// æ£€æŸ¥å’Œè¿½åŠ 
 				bool is_exist;
 				for (int ipc = 0; ipc < pair_freq_list.second[0].idx_pool_count; ++ipc)
 				{
@@ -273,21 +272,21 @@ public:
 							break;
 						}
 					}
-					if (!is_exist)				// Èç¹û²»´æÔÚ£¬Ôò°Ñ¸ÃË÷ÒıÎ»ÖÃÍÆÈë×ÓÊ÷ÖĞ
+					if (!is_exist)				// å¦‚æœä¸å­˜åœ¨ï¼Œåˆ™æŠŠè¯¥ç´¢å¼•ä½ç½®æ¨å…¥å­æ ‘ä¸­
 					{
 						tmpFreq.back()->Push(pair_freq_list.second[0].unique_idx_pool[ipc]);
 					}
 				}
 			}
 
-			cuted_count = 0;			// ÖØÖÃ²Ã¼ôÊı×é³¤¶È
+			cuted_count = 0;			// é‡ç½®è£å‰ªæ•°ç»„é•¿åº¦
 		}
 
 		PAIR_COUNT_FREQ_LIST_TYPE ret;
 		ret.first = tmpFreq.size();
 		ret.second.reset(new FrequentTree<MANAGE>[ret.first]);
 
-		// ¸´ÖÆÊı¾İµ½·µ»ØÖµ
+		// å¤åˆ¶æ•°æ®åˆ°è¿”å›å€¼
 		for (int cy = 0; cy < ret.first; ++cy)
 		{
  			ret.second[cy] = *tmpFreq[cy];
@@ -329,13 +328,10 @@ private:
 	PAIR_UNIQUE_INDEX_PATH_TYPE paths;
 	std::size_t work_level;
 	UNIQUE_NODE_PTR root;
-	// Â·¾¶½Úµã
+	// è·¯å¾„èŠ‚ç‚¹
 };
 
-// ¹¹Ôì½á¹¹»¯¶ş²æÊ÷
-// ´«Èëµ±Ç°Æµ·±×ÓÊ÷½øÈë¼ôÖ¦²Ù×÷£¬·µ»Ø²Ã¼ô¹ıµÄ¹ØÁª¶ş²æÊ÷
-
-
-
+// æ„é€ ç»“æ„åŒ–äºŒå‰æ ‘
+// ä¼ å…¥å½“å‰é¢‘ç¹å­æ ‘è¿›å…¥å‰ªææ“ä½œï¼Œè¿”å›è£å‰ªè¿‡çš„å…³è”äºŒå‰æ ‘
 
 #endif // !__STRUCTURAL_BINARY_TREE_HPP__
