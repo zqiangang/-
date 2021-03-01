@@ -1,4 +1,4 @@
-  #ifndef __EVENT_MODEL_MANAGE_HPP__
+#ifndef __EVENT_MODEL_MANAGE_HPP__
 #define __EVENT_MODEL_MANAGE_HPP__
 #include "CPPheader.hpp"
 #include "enumTools.hpp"
@@ -7,33 +7,33 @@
 
 #ifdef EVENT_MODEL_DEBUG
 
-// TKEY		key ÀàĞÍ£¬¶ÔÓÚkeyÖµ ÒªÇóÆäÔÚËùÓĞµÄkey ÖĞ¸÷×ÔÎ¨Ò»
-// TINDEX	Óë key ¶ÔÓ¦´æ´¢µÄ index Öµ£¬ indexÖµÒªÇóÔÚµ±Ç° eventModel ÏÂËùÓĞ index ¸÷×ÔÎ¨Ò»
-// BWIDTH	Î»¿í£¬Ö¸Ã÷µ¥¸öÖµ»òÒ»ÏµÁĞÖµµÄ´æÔÚÕ¼ÓÃµÄ¿Õ¼ä¿í¶È µ¥Î» bit,Ä¬ÈÏ 1bit ´æ´¢¿Õ¼äÕ¼ÓÃ
-// BSWIDTH	½Ú¿Õ¼ä´óĞ¡,Ò»¸ö BWIDTH ÖĞ¿ÉÒÔ°üº¬¶à¸ö BSWIDTH,Ò»¸öBWIDTH ¾¡¿ÉÄÜµÄ¶ÔÓ¦Ò»¸ö BSWIDTH£¬
-// ÈçºÎ BSWIDTH ¿ÉÒÔºÍ BWIDTH ¶ÔÓ¦£¬ÄÇÃ´Ò»¸ö BWIDTH ÖĞº¬ÓĞÒ»¸ö BSWIDTH,·´Ö®Ò»¸ö Ò»¸ö 256bitµÄ BWIDTH Ôò°üº¬
-// 256 ¸ö BSWIDTH,»òÓÉÓÃ»§Ö¸¶¨µÄ SectionWidth ÖĞµÄµ¥¸ö½Ú³ß´ç£¬¼ÆËã³ö N = BWIDTH / BSWIDTH
-// CHECK ¼ì²é BSWIDTH ÊÇ·ñĞ¡ÓÚ BWIDTH,Ğ¡ÓÚÔò¼ì²éÍ¨¹ı
+// TKEY		key ç±»å‹ï¼Œå¯¹äºkeyå€¼ è¦æ±‚å…¶åœ¨æ‰€æœ‰çš„key ä¸­å„è‡ªå”¯ä¸€
+// TINDEX	ä¸ key å¯¹åº”å­˜å‚¨çš„ index å€¼ï¼Œ indexå€¼è¦æ±‚åœ¨å½“å‰ eventModel ä¸‹æ‰€æœ‰ index å„è‡ªå”¯ä¸€
+// BWIDTH	ä½å®½ï¼ŒæŒ‡æ˜å•ä¸ªå€¼æˆ–ä¸€ç³»åˆ—å€¼çš„å­˜åœ¨å ç”¨çš„ç©ºé—´å®½åº¦ å•ä½ bit,é»˜è®¤ 1bit å­˜å‚¨ç©ºé—´å ç”¨
+// BSWIDTH	èŠ‚ç©ºé—´å¤§å°,ä¸€ä¸ª BWIDTH ä¸­å¯ä»¥åŒ…å«å¤šä¸ª BSWIDTH,ä¸€ä¸ªBWIDTH å°½å¯èƒ½çš„å¯¹åº”ä¸€ä¸ª BSWIDTHï¼Œ
+// å¦‚ä½• BSWIDTH å¯ä»¥å’Œ BWIDTH å¯¹åº”ï¼Œé‚£ä¹ˆä¸€ä¸ª BWIDTH ä¸­å«æœ‰ä¸€ä¸ª BSWIDTH,åä¹‹ä¸€ä¸ª ä¸€ä¸ª 256bitçš„ BWIDTH åˆ™åŒ…å«
+// 256 ä¸ª BSWIDTH,æˆ–ç”±ç”¨æˆ·æŒ‡å®šçš„ SectionWidth ä¸­çš„å•ä¸ªèŠ‚å°ºå¯¸ï¼Œè®¡ç®—å‡º N = BWIDTH / BSWIDTH
+// CHECK æ£€æŸ¥ BSWIDTH æ˜¯å¦å°äº BWIDTH,å°äºåˆ™æ£€æŸ¥é€šè¿‡
 template <typename TKEY, typename TINDEX, BitWidth BWIDTH, SectionWidth BSWIDTH,typename CHECK>
 class EventModelManage
 {
 public:
 	using KEY_TYPE = TKEY;
 	using INDEX_TYPE = TINDEX;																		
-	using MASK_TYPE = MaskType_t<BSWIDTH>;																// µ¥¸ö½ÚµÄ´æ·ÅÊı¾İÀàĞÍ
-	using VALUE_TYPE = MASK_TYPE;																		// Ä¬ÈÏÖµÀàĞÍµÈÍ¬ÓÚÑÚÂëÀàĞÍ
+	using MASK_TYPE = MaskType_t<BSWIDTH>;																// å•ä¸ªèŠ‚çš„å­˜æ”¾æ•°æ®ç±»å‹
+	using VALUE_TYPE = MASK_TYPE;																		// é»˜è®¤å€¼ç±»å‹ç­‰åŒäºæ©ç ç±»å‹
 	using UNIQUE_INDEX_PTR = std::unique_ptr<INDEX_TYPE[],std::default_delete<INDEX_TYPE>>;
 
-	constexpr static BitWidth BIT_WIDTH = BWIDTH;														// ×ÜÎ»¿í 
-	constexpr static SectionWidth BIT_SECTION_WIDTH = BSWIDTH;											// Êı¾İµÄ½ÚÎ»¿í
-	constexpr static MASK_TYPE BIT_MASK = MaskValue_v<MaskType_t<BSWIDTH>, BIT_SECTION_WIDTH>;			// ¸ù¾İ½ÚµÄ³¤¶ÈÑ¡Ôñ½ÚÑÚÂëÀàĞÍ
-	constexpr static std::size_t EVENT_MODEL_TVALUE_COUNT = EventModelValueCount_v<BWIDTH, VALUE_TYPE>; // EventModel ÖĞµÄ  Tvalue ¸öÊı
-	constexpr static std::size_t EVENT_MODEL_MAX_ELEMENTS = EventModelMaxElement_v<BWIDTH, BSWIDTH>;	// ×î´óµÄÔªËØÊıÁ¿
+	constexpr static BitWidth BIT_WIDTH = BWIDTH;														// æ€»ä½å®½ 
+	constexpr static SectionWidth BIT_SECTION_WIDTH = BSWIDTH;											// æ•°æ®çš„èŠ‚ä½å®½
+	constexpr static MASK_TYPE BIT_MASK = MaskValue_v<MaskType_t<BSWIDTH>, BIT_SECTION_WIDTH>;			// æ ¹æ®èŠ‚çš„é•¿åº¦é€‰æ‹©èŠ‚æ©ç ç±»å‹
+	constexpr static std::size_t EVENT_MODEL_TVALUE_COUNT = EventModelValueCount_v<BWIDTH, VALUE_TYPE>; // EventModel ä¸­çš„  Tvalue ä¸ªæ•°
+	constexpr static std::size_t EVENT_MODEL_MAX_ELEMENTS = EventModelMaxElement_v<BWIDTH, BSWIDTH>;	// æœ€å¤§çš„å…ƒç´ æ•°é‡
 public:
 	EventModelManage() = default;
-	virtual std::size_t const GetEventTypeCount() const = 0;											// ·µ»ØÊÂÎñÖĞËùÓĞ¿ÉÄÜ³öÏÖµÄÊÂ¼şµÄ×ÜÊıÁ¿
-	virtual uint32_t const GetIndexFromKey(KEY_TYPE const& keyCode) const = 0;							// Í¨¹ıÊı¾İ±àÂë»ñÈ¡Êı¾İµÄË÷Òı 
-	virtual UNIQUE_INDEX_PTR GetIndexList() const = 0;													// »ñÈ¡Ë÷ÒıÁĞ±í,´ËË÷ÒıÁĞ±íµÄË³ĞòÓ¦µ±Óë GetIndexFromKey ·µ»ØµÄË÷ÒıË³ĞòÒ»ÖÂ
+	virtual std::size_t const GetEventTypeCount() const = 0;											// è¿”å›äº‹åŠ¡ä¸­æ‰€æœ‰å¯èƒ½å‡ºç°çš„äº‹ä»¶çš„æ€»æ•°é‡
+	virtual uint32_t const GetIndexFromKey(KEY_TYPE const& keyCode) const = 0;							// é€šè¿‡æ•°æ®ç¼–ç è·å–æ•°æ®çš„ç´¢å¼• 
+	virtual UNIQUE_INDEX_PTR GetIndexList() const = 0;													// è·å–ç´¢å¼•åˆ—è¡¨,æ­¤ç´¢å¼•åˆ—è¡¨çš„é¡ºåºåº”å½“ä¸ GetIndexFromKey è¿”å›çš„ç´¢å¼•é¡ºåºä¸€è‡´
 	virtual ~EventModelManage() { }
 }; 
 
